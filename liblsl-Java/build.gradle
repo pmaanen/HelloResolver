@@ -1,0 +1,49 @@
+// liblsl-Java library module for Android.
+// To include this, call 
+// include 'liblsl-Java'
+// project(':liblsl-Java').projectDir = new File('path/to/this/liblsl-Java')
+// in your settings.gradle and specify it as a dependency via
+// dependencies { implementation project(':liblsl-java') }
+// in the app's build.gradle
+
+buildscript {
+
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.1.+'
+    }
+}
+
+plugins {
+    id 'com.android.library'
+}
+
+dependencies {
+    implementation 'net.java.dev.jna:jna:5.13.0@aar'
+}
+
+android {
+    compileSdk 33
+    defaultConfig {
+        minSdkVersion 24
+        externalNativeBuild.cmake {
+            arguments "-DANDROID_PLATFORM=$minSdk"
+            cppFlags "-fexceptions","-std=c++17"
+            targets "lsl"
+        }
+    }
+
+    sourceSets.main.java.srcDirs += 'src'
+    namespace = 'edu.ucsd.sccn'
+
+    externalNativeBuild.cmake {
+        // If the Android SDK CMake is older than 3.12, you need to install CMake locally and
+        // configure the path in your local.properties file, e.g.
+        // cmake.dir=C\:\\Program Files\\CMake
+        version '3.24.1+'
+        path(properties['liblsl_path'] ?: '../liblsl/CMakeLists.txt')
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+    }
+}
