@@ -67,12 +67,26 @@ class MainActivity : ComponentActivity() {
                                 var lock = wifiManager.createMulticastLock("MC Lock")
                                 lock.acquire()
 
-                                var stream1 =
-                                    LSL.StreamOutlet(LSL.StreamInfo("TestStream1", "other",1,LSL.IRREGULAR_RATE,ChannelFormat.float32,
-                                        Build.FINGERPRINT))
-                                var stream2 =
-                                    LSL.StreamOutlet(LSL.StreamInfo("TestStream20", "other",1,LSL.IRREGULAR_RATE,ChannelFormat.float32,
-                                        Build.FINGERPRINT))
+                                var stream1 = LSL.StreamOutlet(
+                                    LSL.StreamInfo(
+                                        "TestStream1",
+                                        "other",
+                                        1,
+                                        LSL.IRREGULAR_RATE,
+                                        ChannelFormat.float32,
+                                        Build.FINGERPRINT
+                                    )
+                                )
+                                var stream2 = LSL.StreamOutlet(
+                                    LSL.StreamInfo(
+                                        "TestStream2",
+                                        "other",
+                                        1,
+                                        LSL.IRREGULAR_RATE,
+                                        ChannelFormat.float32,
+                                        Build.FINGERPRINT
+                                    )
+                                )
 
                                 var streams = LSL.resolve_streams()
                                 var str = "Found ${streams.size} streams:"
