@@ -36,8 +36,19 @@ jobs:
       - name: Build APK
         run: ./gradlew assembleRelease  # Change 'assembleDebug' to 'assembleRelease' if you want a release build
 
+      - name: Sign app APK
+        uses: r0adkll/sign-android-release@v1
+        # ID used to access action output
+        id: sign_app
+        with:
+          releaseDirectory: app/build/outputs/apk/release
+          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+          alias: ${{ secrets.ALIAS }}
+          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v2
         with:
           name: HelloResolver  # Change this to your desired artifact name
-          path: app/build/outputs/apk/debug/HelloResolver.apk  # Change the path to the location of your APK file
+          path: ${{steps.sign_app.outputs.signedReleaseFile}}  # Change the path to the location of your APK file
