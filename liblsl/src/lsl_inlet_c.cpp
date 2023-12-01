@@ -1,11 +1,5 @@
 #include "lsl_c_api_helpers.hpp"
 #include "stream_inlet_impl.h"
-#include <cstdlib>
-#include <exception>
-#include <loguru.hpp>
-#include <stdexcept>
-#include <string>
-#include <vector>
 
 extern "C" {
 #include "api_types.hpp"
@@ -14,19 +8,11 @@ extern "C" {
 
 using namespace lsl;
 
-LIBLSL_C_API lsl_inlet lsl_create_inlet_ex(lsl_streaminfo info, int32_t max_buflen,
-	int32_t max_chunklen, int32_t recover, lsl_transport_options_t flags) {
-	try {
-		int32_t buf_samples = info->calc_transport_buf_samples(max_buflen, flags);
-		return create_object_noexcept<stream_inlet_impl>(
-			*info, buf_samples, max_chunklen, recover != 0);
-	}
-	LSLCATCHANDSTORE(nullptr, std::invalid_argument, lsl_argument_error);
-	return nullptr;
-}
 LIBLSL_C_API lsl_inlet lsl_create_inlet(
 	lsl_streaminfo info, int32_t max_buflen, int32_t max_chunklen, int32_t recover) {
-	return lsl_create_inlet_ex(info, max_buflen, max_chunklen, recover, transp_default);
+	return create_object_noexcept<stream_inlet_impl>(*info,
+		(info->nominal_srate() ? (int)(info->nominal_srate() * max_buflen) : max_buflen * 100) + 1,
+		max_chunklen, recover != 0);
 }
 
 LIBLSL_C_API void lsl_destroy_inlet(lsl_inlet in) {
@@ -36,11 +22,7 @@ LIBLSL_C_API void lsl_destroy_inlet(lsl_inlet in) {
 }
 
 LIBLSL_C_API lsl_streaminfo lsl_get_fullinfo(lsl_inlet in, double timeout, int32_t *ec) {
-	try {
-		return new stream_info_impl(in->info(timeout));
-	}
-	LSL_STORE_EXCEPTION_IN(ec)
-	return nullptr;
+	return create_object_noexcept<stream_info_impl>(in->info(timeout));
 }
 
 LIBLSL_C_API void lsl_open_stream(lsl_inlet in, double timeout, int32_t *ec) {
@@ -161,7 +143,7 @@ LIBLSL_C_API double lsl_pull_sample_buf(lsl_inlet in, char **buffer, uint32_t *b
 				return 0.0;
 			}
 			buffer_lengths[k] = (uint32_t)tmp[k].size();
-			memcpy(buffer[k], tmp[k].data(), tmp[k].size());
+			memcpy(buffer[k], &tmp[k][0], tmp[k].size());
 		}
 		return result;
 	} LSL_STORE_EXCEPTION_IN(ec)
@@ -227,7 +209,7 @@ LIBLSL_C_API unsigned long lsl_pull_chunk_str(lsl_inlet in, char **data_buffer,
 		// capture output in a temporary string buffer
 		if (data_buffer_elements) {
 			std::vector<std::string> tmp(data_buffer_elements);
-			uint32_t result = in->pull_chunk_multiplexed(tmp.data(), timestamp_buffer,
+			uint32_t result = in->pull_chunk_multiplexed(&tmp[0], timestamp_buffer,
 				data_buffer_elements, timestamp_buffer_elements, timeout);
 			// allocate memory and copy over into buffer
 			for (std::size_t k = 0; k < tmp.size(); k++) {
@@ -241,10 +223,9 @@ LIBLSL_C_API unsigned long lsl_pull_chunk_str(lsl_inlet in, char **data_buffer,
 				data_buffer[k][tmp[k].size()] = '\0';
 			}
 			return result;
-		}
-		return 0;
-	}
-	LSL_STORE_EXCEPTION_IN(ec)
+		} else
+			return 0;
+	} LSL_STORE_EXCEPTION_IN(ec)
 	return 0;
 }
 
@@ -256,7 +237,7 @@ LIBLSL_C_API unsigned long lsl_pull_chunk_buf(lsl_inlet in, char **data_buffer,
 		// capture output in a temporary string buffer
 		if (data_buffer_elements) {
 			std::vector<std::string> tmp(data_buffer_elements);
-			uint32_t result = in->pull_chunk_multiplexed(tmp.data(), timestamp_buffer,
+			uint32_t result = in->pull_chunk_multiplexed(&tmp[0], timestamp_buffer,
 				data_buffer_elements, timestamp_buffer_elements, timeout);
 			// allocate memory and copy over into buffer
 			for (uint32_t k = 0; k < tmp.size(); k++) {
@@ -271,10 +252,9 @@ LIBLSL_C_API unsigned long lsl_pull_chunk_buf(lsl_inlet in, char **data_buffer,
 				data_buffer[k][tmp[k].size()] = '\0';
 			}
 			return result;
-		}
-		return 0;
-	}
-	LSL_STORE_EXCEPTION_IN(ec)
+		} else
+			return 0;
+	} LSL_STORE_EXCEPTION_IN(ec)
 	return 0;
 }
 

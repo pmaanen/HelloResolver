@@ -28,10 +28,13 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -49,15 +52,17 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            var checked by remember { mutableStateOf(true) }
             HelloResolverTheme() {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     //color = surfaceColor.value
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
+
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         val buttonColors = ButtonDefaults.buttonColors(
                             containerColor = Color.Cyan, contentColor = Color.DarkGray
@@ -65,8 +70,10 @@ class MainActivity : ComponentActivity() {
                         Button(
                             onClick = {
                                 var lock = wifiManager.createMulticastLock("MC Lock")
-                                lock.acquire()
-
+                                if (checked) {
+                                    lock.acquire()
+                                    Log.e("LSL", "Acquiring multicast lock")
+                                }
                                 var stream1 = LSL.StreamOutlet(
                                     LSL.StreamInfo(
                                         "TestStream1",
@@ -105,7 +112,8 @@ class MainActivity : ComponentActivity() {
                                         .show()
                                 }
                                 Log.e("HelloResolver", str)
-                                lock.release()
+                                if (checked)
+                                    lock.release()
                                 stream1.close()
                                 stream2.close()
                             },
@@ -114,6 +122,10 @@ class MainActivity : ComponentActivity() {
                                 .background(color = Color.Unspecified, shape = CircleShape)
                         ) {
                             Text(text = "Run Test")
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Switch(checked = checked, onCheckedChange = { checked = it })
+                            Text(text="Acquire multicast lock")
                         }
                     }
                 }
