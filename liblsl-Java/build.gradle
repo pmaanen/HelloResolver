@@ -19,16 +19,15 @@ plugins {
 }
 
 dependencies {
-    implementation 'net.java.dev.jna:jna:5.13.0@aar'
+    implementation 'net.java.dev.jna:jna:5.12.0@aar'
 }
 
 android {
-    compileSdk 33
+    compileSdkVersion 33
     defaultConfig {
         minSdkVersion 24
         externalNativeBuild.cmake {
-            arguments "-DANDROID_PLATFORM=$minSdk"
-            cppFlags "-fexceptions","-std=c++17"
+            arguments "-DANDROID_CPP_FEATURES=rtti exceptions", "-DANDROID_PLATFORM=24"
             targets "lsl"
         }
     }
@@ -42,8 +41,7 @@ android {
         // cmake.dir=C\:\\Program Files\\CMake
         version '3.24.1+'
         path(properties['liblsl_path'] ?: '../liblsl/CMakeLists.txt')
+
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-    }
+    ndkVersion '25.2.9519653'
 }
