@@ -28,7 +28,7 @@ jobs:
       - name: Setup Android NDK
         uses: nttld/setup-ndk@v1.2.0
         with:
-          ndk-version: r14b
+          ndk-version: r25c
 
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
