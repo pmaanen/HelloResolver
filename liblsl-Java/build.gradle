@@ -7,13 +7,10 @@
 // in the app's build.gradle
 
 buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
+
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.+'
+        classpath 'com.android.tools.build:gradle:8.1.+'
     }
 }
 
@@ -21,17 +18,12 @@ plugins {
     id 'com.android.library'
 }
 
-repositories {
-    google()
-    mavenCentral()
-}
-
 dependencies {
     implementation 'net.java.dev.jna:jna:5.13.0@aar'
 }
 
 android {
-    compileSdkVersion 33
+    compileSdk 33
     defaultConfig {
         minSdkVersion 24
         externalNativeBuild.cmake {
