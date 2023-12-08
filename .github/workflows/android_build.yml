@@ -34,7 +34,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build APK
-        run: ./gradlew assembleRelease  # Change 'assembleDebug' to 'assembleRelease' if you want a release build
+        run: ./gradlew assembleDebug  # Change 'assembleDebug' to 'assembleRelease' if you want a release build
 
       - name: Sign app APK
         uses: r0adkll/sign-android-release@v1
