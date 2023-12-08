@@ -33,7 +33,6 @@ android {
     }
 
     sourceSets.main.java.srcDirs += 'src'
-    namespace = 'edu.ucsd.sccn'
 
     externalNativeBuild.cmake {
         // If the Android SDK CMake is older than 3.12, you need to install CMake locally and
